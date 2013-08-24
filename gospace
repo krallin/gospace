@@ -77,31 +77,34 @@ gospace () {
 }
 
 
-# Bash completion
-_gospace () {
-  local cur use prev
+# Check whether complete is available before we add completion
+command -v complete >/dev/null 2>&1 && {
 
-  COMPREPLY=()
+  # Bash completion
+  _gospace () {
+    local cur use prev
 
-  cur="${COMP_WORDS[COMP_CWORD]}"
-  prev="${COMP_WORDS[COMP_CWORD-1]}"
-  opts="enter exit"
+    COMPREPLY=()
 
-  if [ "$prev" = "enter" ] ; then
-    use=""
-    for gospace in `ls -d $_GOSPACE_HOME/$cur*` ; do
-      use="$use `basename $gospace`"
-    done
-  else
-    case "${cur}" in
-      en*) use="enter" ;;
-      ex*) use="exit" ;;
-      e*)  use="enter exit" ;;
-    esac
-  fi
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="enter exit"
 
-  COMPREPLY=( $( compgen -W "$use" -- $cur ) )
+    if [ "$prev" = "enter" ] ; then
+      use=""
+      for gospace in `ls -d $_GOSPACE_HOME/$cur*` ; do
+        use="$use `basename $gospace`"
+      done
+    else
+      case "${cur}" in
+        en*) use="enter" ;;
+        ex*) use="exit" ;;
+        e*)  use="enter exit" ;;
+      esac
+    fi
+
+    COMPREPLY=( $( compgen -W "$use" -- $cur ) )
+  }
+
+  complete -F _gospace gospace
 }
-
-#TODO: Check this is available
-complete -F _gospace gospace
