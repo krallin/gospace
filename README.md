@@ -27,7 +27,7 @@ environment using:
 
     gospace exit
 
-You can add the `$GOSPACE` environment variable to your command line to
+You can add the `$GOSPACE` environment variable to your command line prompt to
 know which Gospace is currently active.
 
 
