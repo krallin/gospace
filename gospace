@@ -3,8 +3,13 @@
 # gospace: A Workspace manager for Go
 # Inspired by Python's virtualenv
 
-_GOSPACE_HOME=~/.gospaces
-export _GOSPACE_HOME
+
+# Set GOSPACE_HOME to ~/.gospaces, but don't override
+# user preferences
+if [ -z "$_GOSPACE_HOME" ] ; then
+  _GOSPACE_HOME=~/.gospaces
+  export _GOSPACE_HOME
+fi
 
 
 # Clear the command hash table so our changes to PATH are respected
@@ -14,7 +19,7 @@ reset_shell_hash () {
   fi
 }
 
-#
+# Exit an existing gospace, and clean up
 _gospace_exit () {
 
   # Restore the GOPATH
@@ -36,6 +41,7 @@ _gospace_exit () {
   unset GOSPACE
 }
 
+# Enter a new gospace
 _gospace_enter () {
   gospace_name=$1
   gospace_location=$_GOSPACE_HOME/$gospace_name
