@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# gospace: A Workspace manager for Go
+# Inspired by Python's virtualenv
+
+_GOSPACE_HOME=~/.gospaces
+export _GOSPACE_HOME
+
+
+# Clear the command hash table so our changes to PATH are respected
+reset_shell_hash () {
+  if [ -n "$BASH" -o -n "$ZSH_VERSION" ] ; then
+    hash -r 2>/dev/null
+  fi
+}
+
+#
+_gospace_exit () {
+
+  # Restore the GOPATH
+  if [ -n "$_GOSPACE_OLD_GOPATH" ] ; then
+    GOPATH=$_GOSPACE_OLD_GOPATH
+    export GOPATH
+    unset _GOSPACE_OLD_GOPATH
+  fi
+
+  # Restore the PATH
+  if [ -n "$_GOSPACE_OLD_PATH" ] ; then
+    PATH=$_GOSPACE_OLD_PATH
+    export PATH
+    unset _GOSPACE_OLD_PATH
+
+    reset_shell_hash
+  fi
+
+  unset GOSPACE
+}
+
+_gospace_enter () {
+  gospace_name=$1
+  gospace_location=$_GOSPACE_HOME/$gospace_name
+
+  _GOSPACE_OLD_GOPATH=$GOPATH
+  GOPATH=$gospace_location
+  export GOPATH
+
+  _GOSPACE_OLD_PATH=$PATH
+  PATH=$gospace_location/bin:$PATH
+  export PATH
+
+  reset_shell_hash
+
+  mkdir -p $gospace_location
+  GOSPACE=$gospace_name
+  export GOSPACE
+}
+
+
+gospace () {
+  if [ "$1" = "enter" ] ; then
+    if [ -z "$2" ] ; then
+      echo "Usage: gospace enter workspace"
+    else
+      _gospace_enter $2
+    fi
+  elif [ "$1" = "exit" ] ; then
+    _gospace_exit
+  else
+    echo "Usage: gospace [enter workspace|exit]"
+  fi
+}
