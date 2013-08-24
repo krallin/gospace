@@ -21,7 +21,6 @@ reset_shell_hash () {
 
 # Exit an existing gospace, and clean up
 _gospace_exit () {
-
   # Restore the GOPATH
   if [ -n "$_GOSPACE_OLD_GOPATH" ] ; then
     GOPATH=$_GOSPACE_OLD_GOPATH
@@ -43,8 +42,8 @@ _gospace_exit () {
 
 # Enter a new gospace
 _gospace_enter () {
-  gospace_name=$1
-  gospace_location=$_GOSPACE_HOME/$gospace_name
+  local gospace_name=$1
+  local gospace_location=$_GOSPACE_HOME/$gospace_name
 
   _GOSPACE_OLD_GOPATH=$GOPATH
   GOPATH=$gospace_location
@@ -62,6 +61,7 @@ _gospace_enter () {
 }
 
 
+# Main entry point
 gospace () {
   if [ "$1" = "enter" ] ; then
     if [ -z "$2" ] ; then
@@ -74,4 +74,37 @@ gospace () {
   else
     echo "Usage: gospace [enter workspace|exit]"
   fi
+}
+
+
+# Check whether complete is available before we add completion
+command -v complete >/dev/null 2>&1 && {
+
+  # Bash completion
+  _gospace () {
+    local cur use prev
+
+    COMPREPLY=()
+
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="enter exit"
+
+    if [ "$prev" = "enter" ] ; then
+      use=""
+      for gospace in `ls -d $_GOSPACE_HOME/$cur*` ; do
+        use="$use `basename $gospace`"
+      done
+    else
+      case "${cur}" in
+        en*) use="enter" ;;
+        ex*) use="exit" ;;
+        e*)  use="enter exit" ;;
+      esac
+    fi
+
+    COMPREPLY=( $( compgen -W "$use" -- $cur ) )
+  }
+
+  complete -F _gospace gospace
 }
