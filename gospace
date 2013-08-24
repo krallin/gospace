@@ -61,26 +61,6 @@ _gospace_enter () {
 }
 
 
-# Bash completion
-_gospace () {
-  local cur use prev
-
-  COMPREPLY=()
-
-  cur="${COMP_WORDS[COMP_CWORD]}"
-  prev="${COMP_WORDS[COMP_CWORD-1]}"
-  opts="enter exit"
-
-  case "${cur}" in
-    en*) use="enter" ;;
-    ex*) use="exit" ;;
-    e*)  use="enter exit" ;;
-  esac
-  
-  COMPREPLY=( $( compgen -W "$use" -- $cur ) )
-}
-
-
 # Main entry point
 gospace () {
   if [ "$1" = "enter" ] ; then
@@ -94,6 +74,33 @@ gospace () {
   else
     echo "Usage: gospace [enter workspace|exit]"
   fi
+}
+
+
+# Bash completion
+_gospace () {
+  local cur use prev
+
+  COMPREPLY=()
+
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  opts="enter exit"
+
+  if [ "$prev" = "enter" ] ; then
+    use=""
+    for gospace in `ls -d $_GOSPACE_HOME/$cur*` ; do
+      use="$use `basename $gospace`"
+    done
+  else
+    case "${cur}" in
+      en*) use="enter" ;;
+      ex*) use="exit" ;;
+      e*)  use="enter exit" ;;
+    esac
+  fi
+
+  COMPREPLY=( $( compgen -W "$use" -- $cur ) )
 }
 
 #TODO: Check this is available
