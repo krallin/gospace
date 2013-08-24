@@ -45,6 +45,11 @@ _gospace_enter () {
   local gospace_name=$1
   local gospace_location=$_GOSPACE_HOME/$gospace_name
 
+  # If we're currently in a gospace, we'll have to exit first
+  if [ -n "$GOSPACE" ] ; then
+    _gospace_exit
+  fi
+
   _GOSPACE_OLD_GOPATH=$GOPATH
   GOPATH=$gospace_location
   export GOPATH
